@@ -123,7 +123,7 @@ architecture arch of IL_FSM is
 						bit_ind <= 0;                     -- set init values that collect state uses 
 						wr_addr <= "0000000000000";
 						next_state_sig <='1';             -- move to collect state
-					elsif(turbo_read = '1') then
+					elsif(turbo_ready = '1') then
 						curr_coder<= "10";
 						curr_blk_size <= turbo_blk_siz;
 						bit_ind <= 0;                     -- set init values that collect state uses 
