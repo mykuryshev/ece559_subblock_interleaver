@@ -3,7 +3,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity permute_v2 is
+entity permute_v3 is
 
 	port(
 	
@@ -32,7 +32,7 @@ end entity;
 
 
 
-architecture permute_v2_arch of permute_v2 is
+architecture permute_v2_arch of permute_v3 is
 
 	type columnArray is array (0 to 31) of integer range 0 to 31;
 
