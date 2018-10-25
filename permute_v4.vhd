@@ -3,7 +3,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity permute_v3 is
+entity permute_v4 is
 
 	port(
 	
@@ -14,17 +14,9 @@ entity permute_v3 is
 		-- Ports for Michael
 		row       : in  std_logic_vector(7 downto 0);  -- max unsigned value: 191
 		col       : in  std_logic_vector(4 downto 0);  -- max unsinged value: 31
-		subblock  : in  std_logic_vector(1 downto 0);  -- max unsinged value: 2
-		output    : out std_logic;
 		
 		-- Ports for Dhara
-		memoryOut : in  std_logic;
-		mAddress  : out std_logic_vector(12 downto 0); -- max unsinged value: 6143    Physical address I request from the memory unit.
-		ramBlock  : out std_logic_vector (1 downto 0); -- max unsinged value: 2       Which memory unit I request.
-		
-		-- Extras (Diagnostic)
-		outColPermute : out std_logic_vector(4 downto 0);
-		outRowShifted : out std_logic_vector(12 downto 0)
+		mAddress  : out std_logic_vector(12 downto 0)  -- max unsinged value: 6143    Physical address I request from the memory unit.
 		
 	);
 
@@ -32,7 +24,7 @@ end entity;
 
 
 
-architecture permute_v2_arch of permute_v3 is
+architecture permute_v4_arch of permute_v4 is
 
 	type columnArray is array (0 to 31) of integer range 0 to 31;
 
@@ -57,13 +49,10 @@ begin
 		
 			-- Perform:  32 * ROW + PERMUTE( COL )
 			
-			rowShifted      := std_logic_vector(shift_left(resize(unsigned(row), rowShifted'length), 5));
+			rowShifted   := std_logic_vector(shift_left(resize(unsigned(row), rowShifted'length), 5));
 			
 			colPermuted  := std_logic_vector(to_unsigned(columnPermutation(to_integer(unsigned(col))), colPermuted'length));
 			mAddress     <= std_logic_vector(unsigned(rowShifted) + unsigned(colPermuted));
-			
-			outColPermute <= colPermuted;
-			outRowShifted <= rowShifted;
 		
 		
 		end if;
@@ -71,13 +60,6 @@ begin
 		
 	end process;
 	
-	
-	-- Pass subblock request to the FSM memory unit, via output port ramBlock,
-	-- Pass the responded memory output (from  FSM memory unit) to the serializer/output.
-	
-	ramBlock <= subblock;
-	output <= memoryOut;
-	
 
-end architecture permute_v2_arch;
+end architecture;
 
