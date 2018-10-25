@@ -9,9 +9,9 @@ entity IL_FSM is
 		turbo_blk1, turbo_blk2, turbo_blk3 : in std_logic_vector(7 downto 0);
 		conv_blk1, conv_blk2, conv_blk3 : in std_logic_vector(7 downto 0);
 		turbo_blk_size, conv_blk_size : in std_logic; -- 0 = 1056, 1 = 6144 
-		read_done : in std_logic; --from michael
-		rd_addr : in std_logic_vector(12 downto 0); --from ted
-		start_read : out std_logic; -- to michael 
+		read_done : in std_logic; -- from read block
+		rd_addr : in std_logic_vector(12 downto 0); --from permutate block
+		start_read : out std_logic; -- to read block 
 		blk_size : out std_logic -- 0 = 1056, 1 = 6144 
 		);
 end IL_FSM;
@@ -120,6 +120,12 @@ architecture arch of IL_FSM is
 						curr_coder <= "01";               -- set current coder to conv coder 
  						curr_blk_size <= conv_blk_size;	 -- set current block size to conv blk size			 
 						
+						bit_ind <= 0;                     -- set init values that collect state uses 
+						wr_addr <= "0000000000000";
+						next_state_sig <='1';             -- move to collect state
+					elsif(turbo_ready = '1') then
+						curr_coder<= "10";
+						curr_blk_size <= turbo_blk_siz;
 						bit_ind <= 0;                     -- set init values that collect state uses 
 						wr_addr <= "0000000000000";
 						next_state_sig <='1';             -- move to collect state
