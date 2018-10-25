@@ -123,6 +123,12 @@ architecture arch of IL_FSM is
 						bit_ind <= 0;                     -- set init values that collect state uses 
 						wr_addr <= "0000000000000";
 						next_state_sig <='1';             -- move to collect state
+					elsif(turbo_read = '1') then
+						curr_coder<= "10";
+						curr_blk_size <= turbo_blk_siz;
+						bit_ind <= 0;                     -- set init values that collect state uses 
+						wr_addr <= "0000000000000";
+						next_state_sig <='1';             -- move to collect state
 					else 
 						curr_coder <= "00";               -- if neither coder is ready
 						next_state_sig <='0';             -- stay in mux_s until one of them is ready
