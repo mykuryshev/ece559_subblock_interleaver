@@ -11,7 +11,7 @@ entity permute_v4 is
 		clk       : in std_logic;
 		reset     : in std_logic;
 	
-		-- Ports for Michael
+		-- Ports from Michael
 		row       : in  std_logic_vector(7 downto 0);  -- max unsigned value: 191
 		col       : in  std_logic_vector(4 downto 0);  -- max unsinged value: 31
 		
@@ -32,9 +32,10 @@ begin
 
 	process(clk, reset) is
 		
-		constant columnPermutation : columnArray := ( 0, 16, 8, 24, 4, 20, 12, 28, 2, 18, 10, 26, 6, 22, 14, 30, 1, 17, 9, 25, 5, 21, 13, 29, 3, 19, 11, 27, 7, 23, 15, 31 );
+		constant columnPermutation : columnArray := 
+			( 0, 16, 8, 24, 4, 20, 12, 28, 2, 18, 10, 26, 6, 22, 14, 30, 
+			  1, 17, 9, 25, 5, 21, 13, 29, 3, 19, 11, 27, 7, 23, 15, 31 );
 		
-		variable rowShifted  : std_logic_vector(12 downto 0);
 		variable colPermuted  : std_logic_vector (4 downto 0);
 		
 		
@@ -49,10 +50,8 @@ begin
 		
 			-- Perform:  32 * ROW + PERMUTE( COL )
 			
-			rowShifted   := std_logic_vector(shift_left(resize(unsigned(row), rowShifted'length), 5));
-			
 			colPermuted  := std_logic_vector(to_unsigned(columnPermutation(to_integer(unsigned(col))), colPermuted'length));
-			mAddress     <= std_logic_vector(unsigned(rowShifted) + unsigned(colPermuted));
+			mAddress     <= row & colPermuted;
 		
 		
 		end if;
