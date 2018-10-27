@@ -3,81 +3,79 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity IL_FSM is 
-  port (
-		clk,reset : in std_logic;
-		turbo_ready, conv_ready : in std_logic;
-		turbo_blk1, turbo_blk2, turbo_blk3 : in std_logic_vector(7 downto 0);
-		conv_blk1, conv_blk2, conv_blk3 : in std_logic_vector(7 downto 0);
-		turbo_blk_size, conv_blk_size : in std_logic; -- 0 = 1056, 1 = 6144 
-		read_done : in std_logic; -- from read block
-		rd_addr : in std_logic_vector(12 downto 0); --from permutate block
-		start_read : out std_logic; -- to read block 
-		blk_size : out std_logic -- 0 = 1056, 1 = 6144 
-		);
+	port (
+		clk,reset                           : in  std_logic;
+		turbo_ready, conv_ready             : in  std_logic;
+		turbo_blk1, turbo_blk2, turbo_blk3  : in  std_logic_vector(7 downto 0);
+		conv_blk1, conv_blk2, conv_blk3     : in  std_logic_vector(7 downto 0);
+		turbo_blk_size, conv_blk_size       : in  std_logic; -- 0 = 1056, 1 = 6144 
+		read_done                           : in  std_logic; -- from read block
+		rd_addr                             : in  std_logic_vector(12 downto 0); --from permutate block
+		start_read                          : out std_logic; -- to read block 
+		blk_size                            : out std_logic -- 0 = 1056, 1 = 6144 
+	);
 end IL_FSM;
 
 architecture arch of IL_FSM is 
 	component RAM
-		PORT
-		(
-			clock		: IN STD_LOGIC  := '1';
-			data		: IN STD_LOGIC_VECTOR (0 DOWNTO 0);
-			rdaddress       : IN STD_LOGIC_VECTOR (12 DOWNTO 0);
-			wraddress	: IN STD_LOGIC_VECTOR (12 DOWNTO 0);
-			wren		: IN STD_LOGIC  := '0';
-			q		: OUT STD_LOGIC_VECTOR (0 DOWNTO 0)
+		PORT (
+			clock      : IN  STD_LOGIC  := '1';
+			data       : IN  STD_LOGIC_VECTOR (0 DOWNTO 0);
+			rdaddress  : IN  STD_LOGIC_VECTOR (12 DOWNTO 0);
+			wraddress  : IN  STD_LOGIC_VECTOR (12 DOWNTO 0);
+			wren		  : IN  STD_LOGIC  := '0';
+			q          : OUT STD_LOGIC_VECTOR (0 DOWNTO 0)
 		);
 	end component;
 
 	--possible states
-	type state_type is 
-		(mux_s,collect_s,read_s);
+	type   state_type is (mux_s,collect_s,read_s);
 	signal state_curr, state_next: state_type;
 	signal next_state_sig : std_logic := '0'; --move from mux -> collect -> read --> mux ...  
 	
 	--data
 	
-	signal curr_coder :  std_logic_vector(1 downto 0); -- 00 neither are ready, 01 = conv ready, 10 = turbo ready
-	signal curr_blk_size : std_logic; -- 0 = 1056, 1 = 6144 
-	signal data_in_blk1 :  std_logic_vector(0 downto 0);
-	signal data_in_blk2 :  std_logic_vector(0 downto 0);
-	signal data_in_blk3 :  std_logic_vector(0 downto 0);
-	signal data_out_blk1 : std_logic_vector(0 downto 0);
-	signal data_out_blk2 : std_logic_vector(0 downto 0);
-	signal data_out_blk3 : std_logic_vector(0 downto 0);
-	signal output_ind : integer range 0 to 2;
+	signal curr_coder     : std_logic_vector(1 downto 0); -- 00 neither are ready, 01 = conv ready, 10 = turbo ready
+	signal curr_blk_size  : std_logic; -- 0 = 1056, 1 = 6144 
+	signal data_in_blk1   : std_logic_vector(0 downto 0);
+	signal data_in_blk2   : std_logic_vector(0 downto 0);
+	signal data_in_blk3   : std_logic_vector(0 downto 0);
+	signal data_out_blk1  : std_logic_vector(0 downto 0);
+	signal data_out_blk2  : std_logic_vector(0 downto 0);
+	signal data_out_blk3  : std_logic_vector(0 downto 0);
+	signal output_ind     : integer range 0 to 2;
 	
-	signal bit_ind : integer range 0 to 7;
-	signal wr_addr : std_logic_vector(12 downto 0);
-	signal wr_en : std_logic;
+	signal bit_ind        : integer range 0 to 7;
+	signal wr_addr        : std_logic_vector(12 downto 0);
+	signal wr_en          : std_logic;
 	
 	begin
  		mem_blk1 : RAM PORT MAP (
-			clock => clk,
-			data => data_in_blk1,
-			rdaddress => rd_addr,
-			wraddress => wr_addr,
-			wren => wr_en,
-			q => data_out_blk1
+			clock      => clk,
+			data       => data_in_blk1,
+			rdaddress  => rd_addr,
+			wraddress  => wr_addr,
+			wren       => wr_en,
+			q          => data_out_blk1
 		);
 			
 		
  		mem_blk2 : RAM PORT MAP (
-			clock => clk,
-			data => data_in_blk2,
-			rdaddress => rd_addr,
-			wraddress => wr_addr,
-			wren => wr_en,
-			q => data_out_blk2
+			clock      => clk,
+			data       => data_in_blk2,
+			rdaddress  => rd_addr,
+			wraddress  => wr_addr,
+			wren       => wr_en,
+			q          => data_out_blk2
 		);
 		
  		mem_blk3 : RAM PORT MAP (
-			clock => clk,
-			data => data_in_blk3,
-			rdaddress => rd_addr,
-			wraddress => wr_addr,
-			wren => wr_en,
-			q => data_out_blk3
+			clock      => clk,
+			data       => data_in_blk3,
+			rdaddress  => rd_addr,
+			wraddress  => wr_addr,
+			wren       => wr_en,
+			q          => data_out_blk3
 		);
 		
 		process (clk,reset,state_curr,state_next)
